@@ -25,7 +25,7 @@
         return left < right ? -1 : 0;
     },
 
-    sort: function (viewModel, collection, field) {
+    sort: function (viewModel, collection, field, compare) {
         //make sure we sort only once and not for every binding set on table header
         if (viewModel[collection].orderField() == field) {
             viewModel[collection].sort(function (left, right) {
@@ -34,8 +34,14 @@
                 var left_val  = (typeof  left_field === 'function') ?  left_field() :  left_field;
                     right_val = (typeof right_field === 'function') ? right_field() : right_field;
                 if (viewModel[collection].orderDirection() == "desc") {
+                    if (compare !== undefined) {
+                        return compare(right_val, left_val);
+                    }
                     return ko.bindingHandlers.orderable.compare(right_val, left_val);
                 } else {
+                    if (compare !== undefined) {
+                        return compare(left_val, right_val);
+                    }
                     return ko.bindingHandlers.orderable.compare(left_val, right_val);
                 }
             });
@@ -46,6 +52,7 @@
         //get provided options
         var collection = valueAccessor().collection;
         var field = valueAccessor().field;
+        var comparator = viewModel[valueAccessor().comparator];
 
         //add a few observables to ViewModel to track order field and direction
         if (viewModel[collection].orderField == undefined) {
@@ -60,7 +67,7 @@
         if (defaultField) {
             viewModel[collection].orderField(field);            
             viewModel[collection].orderDirection(defaultDirection);
-            ko.bindingHandlers.orderable.sort(viewModel, collection, field);
+            ko.bindingHandlers.orderable.sort(viewModel, collection, field, comparator);
         }
 
         //set order observables on table header click
@@ -81,10 +88,10 @@
 
         //order records when observables changes, so ordering can be changed programmatically
         viewModel[collection].orderField.subscribe(function () {
-            ko.bindingHandlers.orderable.sort(viewModel, collection, field);
+            ko.bindingHandlers.orderable.sort(viewModel, collection, field, comparator);
         });
         viewModel[collection].orderDirection.subscribe(function () {
-            ko.bindingHandlers.orderable.sort(viewModel, collection, field);
+            ko.bindingHandlers.orderable.sort(viewModel, collection, field, comparator);
         });
     },
 
