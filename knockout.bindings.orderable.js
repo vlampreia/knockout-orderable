@@ -54,6 +54,10 @@
         var field = valueAccessor().field;
         var comparator = viewModel[valueAccessor().comparator];
 
+        if (comparator !== undefined && typeof comparator !== 'function') {
+            throw new Error('The comparator binding must be a function');
+        }
+
         //add a few observables to ViewModel to track order field and direction
         if (viewModel[collection].orderField == undefined) {
             viewModel[collection].orderField = ko.observable();
