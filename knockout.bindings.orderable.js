@@ -51,6 +51,7 @@
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         //get provided options
         var collection = valueAccessor().collection;
+        if (typeof collection === 'string') collection = viewModel[collection];
         var field = valueAccessor().field;
         var comparator = valueAccessor().comparator;
 
@@ -69,7 +70,7 @@
         var defaultField = valueAccessor().defaultField;
         var defaultDirection = valueAccessor().defaultDirection || "asc";
         if (defaultField) {
-            collection.orderField(field);
+            collection.orderField(field);            
             collection.orderDirection(defaultDirection);
             ko.bindingHandlers.orderable.sort(viewModel, collection, field, comparator);
         }
@@ -102,6 +103,7 @@
     update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         //get provided options
         var collection = valueAccessor().collection;
+        if (typeof collection === 'string') collection = viewModel[collection];
         var field = valueAccessor().field;
         var isOrderedByThisField = collection.orderField() == field;
             
