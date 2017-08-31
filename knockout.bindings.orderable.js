@@ -27,13 +27,13 @@
 
     sort: function (viewModel, collection, field, compare) {
         //make sure we sort only once and not for every binding set on table header
-        if (viewModel[collection].orderField() == field) {
-            viewModel[collection].sort(function (left, right) {
+        if (collection.orderField() == field) {
+            collection.sort(function (left, right) {
                 var left_field = ko.bindingHandlers.orderable.getProperty(left, field);
                 var right_field = ko.bindingHandlers.orderable.getProperty(right, field);
                 var left_val  = (typeof  left_field === 'function') ?  left_field() :  left_field;
                     right_val = (typeof right_field === 'function') ? right_field() : right_field;
-                if (viewModel[collection].orderDirection() == "desc") {
+                if (collection.orderDirection() == "desc") {
                     if (compare !== undefined) {
                         return compare(right_val, left_val);
                     }
@@ -52,25 +52,25 @@
         //get provided options
         var collection = valueAccessor().collection;
         var field = valueAccessor().field;
-        var comparator = viewModel[valueAccessor().comparator];
+        var comparator = valueAccessor().comparator;
 
         if (comparator !== undefined && typeof comparator !== 'function') {
             throw new Error('The comparator binding must be a function');
         }
 
         //add a few observables to ViewModel to track order field and direction
-        if (viewModel[collection].orderField == undefined) {
-            viewModel[collection].orderField = ko.observable();
+        if (collection.orderField == undefined) {
+            collection.orderField = ko.observable();
         }
-        if (viewModel[collection].orderDirection == undefined) {
-            viewModel[collection].orderDirection = ko.observable("asc");
+        if (collection.orderDirection == undefined) {
+            collection.orderDirection = ko.observable("asc");
         }
 
         var defaultField = valueAccessor().defaultField;
         var defaultDirection = valueAccessor().defaultDirection || "asc";
         if (defaultField) {
-            viewModel[collection].orderField(field);            
-            viewModel[collection].orderDirection(defaultDirection);
+            collection.orderField(field);
+            collection.orderDirection(defaultDirection);
             ko.bindingHandlers.orderable.sort(viewModel, collection, field, comparator);
         }
 
@@ -79,22 +79,22 @@
             e.preventDefault();
             
             //flip sort direction if current sort field is clicked again
-            if (viewModel[collection].orderField() == field) {
-                if (viewModel[collection].orderDirection() == "asc") {
-                    viewModel[collection].orderDirection("desc");
+            if (collection.orderField() == field) {
+                if (collection.orderDirection() == "asc") {
+                    collection.orderDirection("desc");
                 } else {
-                    viewModel[collection].orderDirection("asc");
+                    collection.orderDirection("asc");
                 }
             }
             
-            viewModel[collection].orderField(field);
+            collection.orderField(field);
         });
 
         //order records when observables changes, so ordering can be changed programmatically
-        viewModel[collection].orderField.subscribe(function () {
+        collection.orderField.subscribe(function () {
             ko.bindingHandlers.orderable.sort(viewModel, collection, field, comparator);
         });
-        viewModel[collection].orderDirection.subscribe(function () {
+        collection.orderDirection.subscribe(function () {
             ko.bindingHandlers.orderable.sort(viewModel, collection, field, comparator);
         });
     },
@@ -103,7 +103,7 @@
         //get provided options
         var collection = valueAccessor().collection;
         var field = valueAccessor().field;
-        var isOrderedByThisField = viewModel[collection].orderField() == field;
+        var isOrderedByThisField = collection.orderField() == field;
             
         //apply css binding programmatically
         ko.bindingHandlers.css.update(
@@ -111,8 +111,8 @@
             function () {
                 return {
                     sorted: isOrderedByThisField,
-                    asc: isOrderedByThisField && viewModel[collection].orderDirection() == "asc",
-                    desc: isOrderedByThisField && viewModel[collection].orderDirection() == "desc"
+                    asc: isOrderedByThisField && collection.orderDirection() == "asc",
+                    desc: isOrderedByThisField && collection.orderDirection() == "desc"
                 };
             },
             allBindingsAccessor,
